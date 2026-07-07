@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>禮堂座位安排工具</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">Auditorium Seating Planner</p>
+        <h1>禮堂座位安排工具</h1>
+        <p class="subtitle">上傳 Excel、拖拉排位、設定走道，完成後直接匯出 Excel 座位表。</p>
+      </div>
+      <div class="top-actions">
+        <label class="button primary file-button">
+          <input id="fileInput" type="file" accept=".xlsx,.xls,.csv" />
+          上傳賓客名單
+        </label>
+        <button id="exportBtn" class="button success" type="button">下載 Excel 座位表</button>
+      </div>
+    </header>
+
+    <main class="workspace">
+      <aside class="guest-panel" aria-label="未安排賓客名單">
+        <div class="panel-header">
+          <div>
+            <h2>未安排賓客</h2>
+            <p><span id="unassignedCount">0</span> 位待安排 / 共 <span id="totalCount">0</span> 位</p>
+          </div>
+          <button id="clearGuestsBtn" class="icon-button danger" type="button" title="清空名單與座位">清空</button>
+        </div>
+
+        <div class="search-box">
+          <input id="guestSearch" type="search" placeholder="搜尋機關、姓名、職稱或備註" />
+        </div>
+
+        <div id="guestDropZone" class="drop-zone">
+          可把已安排座位拖回這裡
+        </div>
+
+        <div id="guestList" class="guest-list empty">
+          <div class="empty-state">
+            <div class="empty-icon">📄</div>
+            <p>請先上傳 Excel 名單</p>
+            <small>支援有欄位的名單，或只有一欄完整文字的名單。</small>
+          </div>
+        </div>
+      </aside>
+
+      <section class="seat-panel" aria-label="座位配置區">
+        <div class="control-card">
+          <div class="control-grid">
+            <label>
+              <span>排數</span>
+              <input id="rowInput" type="number" min="1" max="80" value="13" />
+            </label>
+            <label>
+              <span>列數</span>
+              <input id="colInput" type="number" min="1" max="80" value="8" />
+            </label>
+            <label>
+              <span>垂直走道</span>
+              <input id="verticalAislesInput" type="text" placeholder="例：4, 8 表示第4/8欄後" />
+            </label>
+            <label>
+              <span>水平走道</span>
+              <input id="horizontalAislesInput" type="text" placeholder="例：5 表示第5排後" />
+            </label>
+            <div class="control-buttons">
+              <button id="applyLayoutBtn" class="button" type="button">套用座位配置</button>
+              <button id="clearSeatsBtn" class="button ghost" type="button">清空座位</button>
+            </div>
+          </div>
+          <p class="hint">走道請輸入「座位後的位置」，例如垂直走道輸入 6，代表第 6 欄與第 7 欄中間插入走道。</p>
+        </div>
+
+        <div class="stage-card">舞台 / 頒獎台</div>
+
+        <div class="legend-row">
+          <span><i class="legend seat"></i>座位</span>
+          <span><i class="legend assigned"></i>已安排</span>
+          <span><i class="legend aisle"></i>走道</span>
+        </div>
+
+        <div class="seat-scroll">
+          <div id="seatGrid" class="seat-grid" aria-live="polite"></div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <dialog id="guestDialog" class="guest-dialog">
+    <form method="dialog" id="guestForm">
+      <div class="dialog-header">
+        <h3>修改賓客資料</h3>
+        <button class="icon-button" type="button" id="closeDialogBtn" aria-label="關閉">×</button>
+      </div>
+      <input type="hidden" id="editingGuestId" />
+      <label>
+        <span>機關單位</span>
+        <input id="editOrg" type="text" placeholder="例：南投縣政府" />
+      </label>
+      <label>
+        <span>姓名 / 職稱資訊</span>
+        <input id="editPerson" type="text" placeholder="例：林縣長小明" />
+      </label>
+      <label>
+        <span>備註</span>
+        <textarea id="editNote" rows="3" placeholder="可留空"></textarea>
+      </label>
+      <div class="dialog-actions">
+        <button class="button ghost" type="button" id="cancelEditBtn">取消</button>
+        <button class="button primary" type="submit">儲存</button>
+      </div>
+    </form>
+  </dialog>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
