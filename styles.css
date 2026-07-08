@@ -956,3 +956,77 @@ h1 {
     width: 100%;
   }
 }
+
+/* 2026-07 header compact update: reduce top header height so seating area gets more vertical space. */
+.app-shell {
+  padding: 10px 0 20px;
+}
+
+.topbar {
+  margin-bottom: 10px;
+  padding: 12px 18px;
+  border-radius: 20px;
+  gap: 14px;
+}
+
+.eyebrow {
+  margin-bottom: 3px;
+  font-size: 10px;
+  letter-spacing: 0.07em;
+}
+
+h1 {
+  margin-bottom: 3px;
+  font-size: clamp(22px, 2.2vw, 31px);
+  line-height: 1.12;
+}
+
+.subtitle {
+  font-size: 14px;
+  line-height: 1.35;
+}
+
+.top-actions {
+  gap: 8px;
+}
+
+.top-actions .button,
+.top-actions .file-button {
+  min-height: 36px;
+  padding: 8px 14px;
+}
+
+.seat-scroll {
+  max-height: calc(100vh - 235px);
+}
+
+@media (max-width: 1080px) {
+  .topbar {
+    margin-bottom: 8px;
+    padding: 12px 16px;
+    gap: 10px;
+  }
+
+  .seat-scroll {
+    max-height: none;
+  }
+}
+
+@media (max-width: 620px) {
+  .app-shell {
+    padding-top: 7px;
+  }
+
+  .topbar {
+    padding: 10px 12px;
+    border-radius: 18px;
+  }
+
+  h1 {
+    font-size: 24px;
+  }
+
+  .subtitle {
+    font-size: 13px;
+  }
+}
