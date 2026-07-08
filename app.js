@@ -641,11 +641,7 @@
       bottom: { style: 'thin', color: { argb: 'FF9FB4AD' } },
       right: { style: 'thin', color: { argb: 'FF9FB4AD' } },
     };
-    cell.fill = {
-      type: 'pattern',
-      pattern: 'solid',
-      fgColor: { argb: guest ? 'FFEFFAF5' : 'FFFFFFFF' },
-    };
+    // 不設定 fill，讓 Excel 座位儲存格維持無底色。
   }
 
   function downloadBlob(blob, filename) {
