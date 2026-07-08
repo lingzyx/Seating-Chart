@@ -427,15 +427,15 @@ h1 {
 
 .seat-grid {
   display: grid;
-  gap: 8px;
+  gap: 6px;
   min-width: max-content;
   align-items: stretch;
 }
 
 .seat-cell {
   position: relative;
-  width: 112px;
-  min-height: 72px;
+  width: 100%;
+  min-height: 70px;
   padding: 18px 8px 8px;
   border-radius: 14px;
   border: 1px solid var(--line-strong);
@@ -659,7 +659,7 @@ h1 {
   }
 
   .seat-cell {
-    width: 104px;
+    width: 100%;
   }
 }
 
@@ -716,13 +716,13 @@ h1 {
 }
 
 .seat-grid {
-  gap: 6px;
+  gap: 4px;
 }
 
 .seat-cell {
-  width: clamp(78px, 6.2vw, 104px);
+  width: 100%;
   min-height: 66px;
-  padding: 16px 6px 7px;
+  padding: 15px 5px 6px;
   border-radius: 12px;
 }
 
@@ -749,7 +749,7 @@ h1 {
 }
 
 .aisle-cell.horizontal {
-  min-height: 24px;
+  min-height: 20px;
 }
 
 .workspace.guest-collapsed {
@@ -804,12 +804,12 @@ h1 {
   }
 
   .seat-cell {
-    width: 88px;
+    width: 100%;
   }
 }
 
 @media (max-width: 620px) {
   .seat-cell {
-    width: 82px;
+    width: 100%;
   }
 }

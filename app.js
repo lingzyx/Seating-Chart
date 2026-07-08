@@ -49,7 +49,7 @@
   const ORG_ENDINGS = [
     // 較長、較具體的組織結尾要放前面，避免被「公司、廠、會」等短詞過早切斷。
     '廠商聯合總會', '工業區廠商聯合總會', '聯合總會', '勞工董事會', '董事會',
-    '工程服務社', '服務社', '服務處', '辦公室', '事務所', '委員會', '管理處', '營業處',
+    '工程服務社', '服務社', '辦事處', '服務處', '辦公室', '事務所', '委員會', '管理處', '營業處',
     '第十分會', '第九分會', '第八分會', '第七分會', '第六分會', '第五分會', '第四分會', '第三分會', '第二分會', '第一分會', '分會',
     '代表會', '縣議會', '市議會', '縣政府', '市政府', '鄉公所', '鎮公所', '市公所',
     '區公所', '基金會', '協會', '總會', '大學', '高中', '國中', '國小', '醫院', '學校',
@@ -57,10 +57,10 @@
   ];
 
   const TITLE_WORDS = [
-    '副理事長', '常務理事', '常務監事', '董事長', '副董事長', '總經理', '副總經理',
+    '副理事長', '常務理事', '常務監事', '主任委員', '董事長', '副董事長', '總經理', '副總經理',
     '縣長', '市長', '鄉長', '鎮長', '區長', '議員', '立委', '委員', '代表',
     '處長', '副處長', '廠長', '副廠長', '主任', '副主任', '課長', '組長', '股長',
-    '秘書', '專員', '助理', '督導', '經理', '副理', '理事長', '總幹事', '會長', '校長', '里長'
+    '秘書', '專員', '助理', '督導', '經理', '副理', '主委', '理事長', '總幹事', '會長', '校長', '里長'
   ];
 
   const COMMON_SURNAMES = new Set('王李張劉陳楊黃趙吳周徐孫馬朱胡郭何高林羅鄭梁謝宋唐許韓馮鄧曹彭曾蕭田董潘袁蔡蔣余于杜葉程魏蘇呂丁任沈姚盧姜崔鍾譚陸汪范金石廖賴侯邱方江白康游詹施洪簡藍顏莊詹溫傅呂柯盧阮魏歐陽上官司徒'.split(''));
@@ -199,6 +199,19 @@
     return { org: best.org, personLine: best.personLine, note: '', raw };
   }
 
+  function refineStructuredOrg(org, personLine) {
+    const cleanOrg = cleanText(org).replace(/\s/g, '');
+    const cleanPersonLine = cleanText(personLine).replace(/\s/g, '');
+    if (!cleanOrg || !cleanPersonLine) return { org: cleanOrg, personLine: cleanPersonLine };
+
+    const detected = detectOrgFromRaw(`${cleanOrg}${cleanPersonLine}`);
+    if (detected.org && detected.org.startsWith(cleanOrg) && detected.org.length > cleanOrg.length && detected.personLine) {
+      return { org: detected.org, personLine: detected.personLine };
+    }
+
+    return { org: cleanOrg, personLine: cleanPersonLine };
+}
+
   function composePersonLine(name, title, note) {
     const cleanName = cleanText(name).replace(/\s/g, '');
     const cleanTitle = cleanText(title).replace(/\s/g, '');
@@ -249,8 +262,9 @@
         const hasStructuredData = org || name || title || note;
         if (hasStructuredData) {
           const personLine = composePersonLine(name, title, note);
+          const refined = refineStructuredOrg(org, personLine);
           const raw = [org, name, title, note].filter(Boolean).join(' ');
-          return makeGuest({ org, personLine, note, raw }, index);
+          return makeGuest({ org: refined.org, personLine: refined.personLine, note, raw }, index);
         }
       }
 
@@ -375,8 +389,8 @@
   function makeGridTemplateColumns() {
     const columns = [];
     for (let col = 1; col <= state.cols; col += 1) {
-      columns.push('112px');
-      if (state.verticalAisles.includes(col)) columns.push('28px');
+      columns.push('96px');
+      if (state.verticalAisles.includes(col)) columns.push('22px');
     }
     return columns.join(' ');
   }
