@@ -22,8 +22,6 @@
     applyLayoutBtn: document.getElementById('applyLayoutBtn'),
     rowInput: document.getElementById('rowInput'),
     colInput: document.getElementById('colInput'),
-    verticalAislesInput: document.getElementById('verticalAislesInput'),
-    horizontalAislesInput: document.getElementById('horizontalAislesInput'),
     guestSearch: document.getElementById('guestSearch'),
     guestList: document.getElementById('guestList'),
     guestDropZone: document.getElementById('guestDropZone'),
@@ -434,17 +432,94 @@
   function makeGridTemplateColumns() {
     const columns = [];
     for (let col = 1; col <= state.cols; col += 1) {
-      columns.push('96px');
-      if (state.verticalAisles.includes(col)) columns.push('22px');
+      columns.push('90px');
+      if (col < state.cols) {
+        columns.push(state.verticalAisles.includes(col) ? '22px' : '6px');
+      }
     }
     return columns.join(' ');
   }
 
   function visualColumnCount() {
-    return state.cols + state.verticalAisles.length;
+    return state.cols + Math.max(0, state.cols - 1);
+  }
+
+  function normalizeAisles() {
+    state.verticalAisles = [...new Set(state.verticalAisles)]
+      .filter(num => Number.isInteger(num) && num >= 1 && num < state.cols)
+      .sort((a, b) => a - b);
+    state.horizontalAisles = [...new Set(state.horizontalAisles)]
+      .filter(num => Number.isInteger(num) && num >= 1 && num < state.rows)
+      .sort((a, b) => a - b);
+  }
+
+  function addVerticalAisle(position) {
+    if (position < 1 || position >= state.cols || state.verticalAisles.includes(position)) return;
+    state.verticalAisles.push(position);
+    normalizeAisles();
+    renderSeatGrid();
+    showToast(`已在第 ${position} 欄與第 ${position + 1} 欄之間新增垂直走道`);
+  }
+
+  function removeVerticalAisle(position) {
+    state.verticalAisles = state.verticalAisles.filter(item => item !== position);
+    renderSeatGrid();
+    showToast('已移除垂直走道');
+  }
+
+  function addHorizontalAisle(position) {
+    if (position < 1 || position >= state.rows || state.horizontalAisles.includes(position)) return;
+    state.horizontalAisles.push(position);
+    normalizeAisles();
+    renderSeatGrid();
+    showToast(`已在第 ${position} 排與第 ${position + 1} 排之間新增水平走道`);
+  }
+
+  function removeHorizontalAisle(position) {
+    state.horizontalAisles = state.horizontalAisles.filter(item => item !== position);
+    renderSeatGrid();
+    showToast('已移除水平走道');
+  }
+
+  function createAisleInsert(type, position) {
+    const insert = document.createElement('div');
+    insert.className = `aisle-insert ${type}`;
+    if (type === 'horizontal') insert.style.gridColumn = `1 / span ${visualColumnCount()}`;
+
+    const button = document.createElement('button');
+    button.className = 'aisle-plus';
+    button.type = 'button';
+    button.textContent = type === 'vertical' ? '+' : '+ 新增水平走道';
+    button.title = type === 'vertical'
+      ? `在第 ${position} 欄與第 ${position + 1} 欄之間新增垂直走道`
+      : `在第 ${position} 排與第 ${position + 1} 排之間新增水平走道`;
+    button.addEventListener('click', event => {
+      event.stopPropagation();
+      if (type === 'vertical') addVerticalAisle(position);
+      else addHorizontalAisle(position);
+    });
+
+    insert.appendChild(button);
+    return insert;
+  }
+
+  function createAisleCell(type, position) {
+    const aisle = document.createElement('button');
+    aisle.type = 'button';
+    aisle.className = `aisle-cell ${type} removable`;
+    aisle.textContent = '走道';
+    aisle.title = type === 'vertical' ? '點擊移除這條垂直走道' : '點擊移除這條水平走道';
+    if (type === 'horizontal') aisle.style.gridColumn = `1 / span ${visualColumnCount()}`;
+    aisle.addEventListener('click', event => {
+      event.stopPropagation();
+      if (type === 'vertical') removeVerticalAisle(position);
+      else removeHorizontalAisle(position);
+    });
+    return aisle;
   }
 
   function renderSeatGrid() {
+    normalizeAisles();
     els.seatGrid.innerHTML = '';
     els.seatGrid.style.gridTemplateColumns = makeGridTemplateColumns();
 
@@ -452,19 +527,20 @@
     for (let row = 1; row <= state.rows; row += 1) {
       for (let col = 1; col <= state.cols; col += 1) {
         fragment.appendChild(createSeatCell(row, col));
-        if (state.verticalAisles.includes(col)) {
-          const aisle = document.createElement('div');
-          aisle.className = 'aisle-cell vertical';
-          aisle.textContent = '走道';
-          fragment.appendChild(aisle);
+        if (col < state.cols) {
+          fragment.appendChild(
+            state.verticalAisles.includes(col)
+              ? createAisleCell('vertical', col)
+              : createAisleInsert('vertical', col)
+          );
         }
       }
-      if (state.horizontalAisles.includes(row)) {
-        const aisle = document.createElement('div');
-        aisle.className = 'aisle-cell horizontal';
-        aisle.textContent = '走道';
-        aisle.style.gridColumn = `1 / span ${visualColumnCount()}`;
-        fragment.appendChild(aisle);
+      if (row < state.rows) {
+        fragment.appendChild(
+          state.horizontalAisles.includes(row)
+            ? createAisleCell('horizontal', row)
+            : createAisleInsert('horizontal', row)
+        );
       }
     }
     els.seatGrid.appendChild(fragment);
@@ -563,13 +639,10 @@
   function applyLayout() {
     const rows = clampNumber(els.rowInput.value, 1, 80, state.rows);
     const cols = clampNumber(els.colInput.value, 1, 80, state.cols);
-    const verticalAisles = parseAisles(els.verticalAislesInput.value, cols);
-    const horizontalAisles = parseAisles(els.horizontalAislesInput.value, rows);
 
     state.rows = rows;
     state.cols = cols;
-    state.verticalAisles = verticalAisles;
-    state.horizontalAisles = horizontalAisles;
+    normalizeAisles();
 
     for (const key of [...state.seats.keys()]) {
       const [row, col] = key.split('-').map(Number);
@@ -578,8 +651,6 @@
 
     els.rowInput.value = String(rows);
     els.colInput.value = String(cols);
-    els.verticalAislesInput.value = verticalAisles.join(', ');
-    els.horizontalAislesInput.value = horizontalAisles.join(', ');
 
     renderAll();
     showToast('已套用座位配置');

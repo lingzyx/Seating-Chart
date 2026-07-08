@@ -104,7 +104,7 @@ h1 {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 42px;
+  min-height: 40px;
   padding: 10px 16px;
   border-radius: 999px;
   border: 1px solid var(--line-strong);
@@ -366,7 +366,7 @@ h1 {
 
 .control-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(84px, 118px)) minmax(180px, 1fr) minmax(180px, 1fr) auto;
+  grid-template-columns: repeat(2, minmax(84px, 118px)) auto;
   gap: 12px;
   align-items: end;
   margin-bottom: 10px;
@@ -448,7 +448,7 @@ h1 {
 
 .seat-grid {
   display: grid;
-  gap: 6px;
+  gap: 2px;
   min-width: max-content;
   align-items: stretch;
 }
@@ -456,9 +456,9 @@ h1 {
 .seat-cell {
   position: relative;
   width: 100%;
-  min-height: 70px;
-  padding: 18px 8px 8px;
-  border-radius: 14px;
+  min-height: 68px;
+  padding: 17px 7px 7px;
+  border-radius: 13px;
   border: 1px solid var(--line-strong);
   background: var(--seat);
   box-shadow: 0 3px 9px rgba(33, 62, 54, 0.05);
@@ -478,15 +478,15 @@ h1 {
 
 .seat-number {
   position: absolute;
-  top: 6px;
-  left: 8px;
+  top: 5px;
+  left: 7px;
   color: #8b9a96;
   font-size: 11px;
   font-weight: 800;
 }
 
 .seat-content {
-  min-height: 42px;
+  min-height: 40px;
   display: grid;
   align-content: center;
   gap: 2px;
@@ -534,6 +534,7 @@ h1 {
 }
 
 .aisle-cell {
+  position: relative;
   border-radius: 12px;
   background:
     repeating-linear-gradient(45deg, rgba(145, 157, 170, 0.16), rgba(145, 157, 170, 0.16) 8px, rgba(255, 255, 255, 0.34) 8px, rgba(255, 255, 255, 0.34) 16px),
@@ -546,11 +547,112 @@ h1 {
   font-weight: 800;
   writing-mode: vertical-rl;
   letter-spacing: 0.08em;
+  appearance: none;
+  padding: 0;
 }
 
 .aisle-cell.horizontal {
-  min-height: 28px;
+  min-height: 24px;
   writing-mode: initial;
+}
+
+.aisle-cell.removable {
+  cursor: pointer;
+}
+
+.aisle-cell.removable:hover {
+  border-color: var(--primary);
+  color: var(--primary-dark);
+}
+
+.aisle-cell.removable::after {
+  content: "×";
+  position: absolute;
+  top: 3px;
+  right: 4px;
+  width: 14px;
+  height: 14px;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.82);
+  color: #7b8a86;
+  font-size: 10px;
+  line-height: 1;
+}
+
+.aisle-insert {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-width: 0;
+  min-height: 0;
+}
+
+.aisle-insert.vertical {
+  min-height: 68px;
+}
+
+.aisle-insert.horizontal {
+  min-height: 6px;
+}
+
+.aisle-plus {
+  position: absolute;
+  z-index: 3;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  min-width: 24px;
+  height: 24px;
+  padding: 0 7px;
+  border: 1px solid #bcd8d0;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.96);
+  color: var(--primary-dark);
+  font-size: 13px;
+  font-weight: 900;
+  line-height: 1;
+  box-shadow: 0 6px 16px rgba(38, 80, 69, 0.14);
+  opacity: 0;
+  transform: scale(0.86);
+  pointer-events: none;
+  transition: opacity 0.14s ease, transform 0.14s ease, border-color 0.14s ease;
+}
+
+.aisle-insert.vertical .aisle-plus {
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%) scale(0.86);
+}
+
+.aisle-insert.horizontal .aisle-plus {
+  left: 50%;
+  top: 50%;
+  height: 24px;
+  min-width: 118px;
+  transform: translate(-50%, -50%) scale(0.86);
+}
+
+.aisle-insert:hover .aisle-plus,
+.aisle-plus:focus-visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.aisle-insert.vertical:hover .aisle-plus,
+.aisle-insert.vertical .aisle-plus:focus-visible {
+  transform: translate(-50%, -50%) scale(1);
+}
+
+.aisle-insert.horizontal:hover .aisle-plus,
+.aisle-insert.horizontal .aisle-plus:focus-visible {
+  transform: translate(-50%, -50%) scale(1);
+}
+
+.aisle-plus:hover {
+  border-color: var(--primary);
 }
 
 .guest-dialog {
@@ -718,7 +820,7 @@ h1 {
 }
 
 .control-grid {
-  grid-template-columns: repeat(2, minmax(74px, 96px)) minmax(150px, 1fr) minmax(150px, 1fr) auto;
+  grid-template-columns: repeat(2, minmax(74px, 96px)) auto;
   gap: 10px;
 }
 
@@ -737,7 +839,7 @@ h1 {
 }
 
 .seat-grid {
-  gap: 4px;
+  gap: 2px;
 }
 
 .seat-cell {
@@ -771,6 +873,14 @@ h1 {
 
 .aisle-cell.horizontal {
   min-height: 20px;
+}
+
+.aisle-insert.vertical {
+  min-height: 66px;
+}
+
+.aisle-insert.horizontal {
+  min-height: 6px;
 }
 
 .workspace.guest-collapsed {
@@ -824,12 +934,24 @@ h1 {
     display: none;
   }
 
+  .control-grid {
+    grid-template-columns: repeat(2, minmax(100px, 1fr));
+  }
+
+  .control-buttons {
+    grid-column: 1 / -1;
+  }
+
   .seat-cell {
     width: 100%;
   }
 }
 
 @media (max-width: 620px) {
+  .control-grid {
+    grid-template-columns: 1fr;
+  }
+
   .seat-cell {
     width: 100%;
   }
