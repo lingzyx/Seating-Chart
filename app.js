@@ -38,16 +38,25 @@
     toast: document.getElementById('toast'),
   };
 
+  const SPECIAL_ORG_LABELS = [
+    // 這類不是正式機關結尾詞，但在座位表上常作為分類名稱，匯出時也要放第一行粗體。
+    '處長親友', '退休長官'
+  ];
+
   const ORG_ENDINGS = [
-    '服務處', '辦公室', '事務所', '委員會', '管理處', '營業處', '代表會', '縣議會', '市議會',
-    '縣政府', '市政府', '鄉公所', '鎮公所', '市公所', '區公所', '基金會', '協會',
-    '大學', '高中', '國中', '國小', '醫院', '學校', '區處', '分處', '公司', '工會', '公會',
-    '中心', '議會', '署', '局', '處', '所', '廠', '會'
+    // 較長、較具體的組織結尾要放前面，避免被「公司、廠、會」等短詞過早切斷。
+    '廠商聯合總會', '工業區廠商聯合總會', '聯合總會', '勞工董事會', '董事會',
+    '工程服務社', '服務社', '服務處', '辦公室', '事務所', '委員會', '管理處', '營業處',
+    '第十分會', '第九分會', '第八分會', '第七分會', '第六分會', '第五分會', '第四分會', '第三分會', '第二分會', '第一分會', '分會',
+    '代表會', '縣議會', '市議會', '縣政府', '市政府', '鄉公所', '鎮公所', '市公所',
+    '區公所', '基金會', '協會', '總會', '大學', '高中', '國中', '國小', '醫院', '學校',
+    '區處', '分處', '公司', '工會', '公會', '中心', '議會', '署', '局', '處', '所', '廠', '會'
   ];
 
   const TITLE_WORDS = [
-    '縣長', '市長', '鄉長', '鎮長', '區長', '議員', '立委', '委員', '代表', '董事長', '總經理',
-    '副總經理', '處長', '副處長', '廠長', '副廠長', '主任', '副主任', '課長', '組長', '股長',
+    '副理事長', '常務理事', '常務監事', '董事長', '副董事長', '總經理', '副總經理',
+    '縣長', '市長', '鄉長', '鎮長', '區長', '議員', '立委', '委員', '代表',
+    '處長', '副處長', '廠長', '副廠長', '主任', '副主任', '課長', '組長', '股長',
     '秘書', '專員', '助理', '督導', '經理', '副理', '理事長', '總幹事', '會長', '校長', '里長'
   ];
 
@@ -100,32 +109,74 @@
     if (!text || text.length < 2) return false;
     const firstChar = text[0];
     const hasCommonSurname = COMMON_SURNAMES.has(firstChar);
-    const earlyText = text.slice(0, 7);
+    const earlyText = text.slice(0, 10);
     const hasTitle = TITLE_WORDS.some(title => earlyText.includes(title));
     return hasCommonSurname || hasTitle;
+  }
+
+  function startsWithTitle(text) {
+    return TITLE_WORDS.some(title => text.startsWith(title));
+  }
+
+  function looksLikeOrgContinuation(text) {
+    if (!text) return false;
+    return /^[商業工產區聯合總董監事會務服處局所中心公協勞民分第0-9０-９一二三四五六七八九十]/.test(text);
+  }
+
+  function includeTrailingParentheses(raw, boundary) {
+    let nextBoundary = boundary;
+    let hasParentheses = false;
+
+    while (nextBoundary < raw.length) {
+      const open = raw[nextBoundary];
+      const close = open === '（' ? '）' : open === '(' ? ')' : '';
+      if (!close) break;
+
+      const closeIndex = raw.indexOf(close, nextBoundary + 1);
+      if (closeIndex < 0) break;
+
+      nextBoundary = closeIndex + 1;
+      hasParentheses = true;
+    }
+
+    return {
+      boundary: nextBoundary,
+      hasParentheses,
+    };
   }
 
   function detectOrgFromRaw(rawText) {
     const raw = cleanText(rawText).replace(/\s/g, '');
     if (!raw) return { org: '', personLine: '', note: '', raw: '' };
 
+    const specialLabel = SPECIAL_ORG_LABELS.find(label => raw.startsWith(label));
+    if (specialLabel) {
+      return { org: specialLabel, personLine: raw.slice(specialLabel.length), note: '', raw };
+    }
+
     const candidates = [];
     ORG_ENDINGS.forEach((ending, endingIndex) => {
       let start = raw.indexOf(ending);
       while (start >= 0) {
-        const boundary = start + ending.length;
+        const initialBoundary = start + ending.length;
+        const extended = includeTrailingParentheses(raw, initialBoundary);
+        const boundary = extended.boundary;
         const org = raw.slice(0, boundary);
         const rest = raw.slice(boundary);
-        if (org.length >= 2 && rest.length >= 1) {
+        if (org.length >= 2 && (rest.length >= 1 || extended.hasParentheses)) {
           let score = 0;
-          score += Math.min(24, org.length);
-          score += Math.max(0, 20 - endingIndex);
-          if (ending.length >= 2) score += 18;
-          if (isLikelyNameAndTitle(rest)) score += 40;
+          score += Math.min(40, org.length * 2);
+          score += Math.max(0, 28 - endingIndex);
+          score += ending.length * 12;
+          if (extended.hasParentheses) score += 45;
+          if (startsWithTitle(rest)) score += 55;
+          else if (isLikelyNameAndTitle(rest)) score += 40;
+          else if (!rest) score += 18;
+          else score -= 35;
+          if (looksLikeOrgContinuation(rest)) score -= 55;
           if (rest.length >= 2 && rest.length <= 12) score += 12;
           if (org.length > 30) score -= 20;
-          if (/^[長副助專]/.test(rest)) score -= 30;
-          candidates.push({ org, personLine: rest, score, boundary });
+          candidates.push({ org, personLine: rest, score, boundary, endingLength: ending.length });
         }
         start = raw.indexOf(ending, start + 1);
       }
@@ -137,7 +188,8 @@
 
     candidates.sort((a, b) => {
       if (b.score !== a.score) return b.score - a.score;
-      return a.boundary - b.boundary;
+      if (b.endingLength !== a.endingLength) return b.endingLength - a.endingLength;
+      return b.boundary - a.boundary;
     });
 
     const best = candidates[0];
