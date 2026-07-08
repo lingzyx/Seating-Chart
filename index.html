@@ -23,14 +23,17 @@
       </div>
     </header>
 
-    <main class="workspace">
+    <main id="workspace" class="workspace">
       <aside class="guest-panel" aria-label="未安排賓客名單">
         <div class="panel-header">
           <div>
             <h2>未安排賓客</h2>
             <p><span id="unassignedCount">0</span> 位待安排 / 共 <span id="totalCount">0</span> 位</p>
           </div>
-          <button id="clearGuestsBtn" class="icon-button danger" type="button" title="清空名單與座位">清空</button>
+          <div class="panel-actions">
+            <button id="toggleGuestPanelBtn" class="tiny-button sidebar-toggle" type="button" title="縮小左側名單，讓座位區更寬">縮小</button>
+            <button id="clearGuestsBtn" class="icon-button danger" type="button" title="清空名單與座位">清空</button>
+          </div>
         </div>
 
         <div class="search-box">
@@ -48,6 +51,8 @@
             <small>支援有欄位的名單，或只有一欄完整文字的名單。</small>
           </div>
         </div>
+
+        <button id="expandGuestPanelBtn" class="collapsed-rail" type="button" title="展開未安排賓客名單">展開名單</button>
       </aside>
 
       <section class="seat-panel" aria-label="座位配置區">

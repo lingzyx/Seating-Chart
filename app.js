@@ -15,6 +15,9 @@
     fileInput: document.getElementById('fileInput'),
     exportBtn: document.getElementById('exportBtn'),
     clearGuestsBtn: document.getElementById('clearGuestsBtn'),
+    workspace: document.getElementById('workspace'),
+    toggleGuestPanelBtn: document.getElementById('toggleGuestPanelBtn'),
+    expandGuestPanelBtn: document.getElementById('expandGuestPanelBtn'),
     clearSeatsBtn: document.getElementById('clearSeatsBtn'),
     applyLayoutBtn: document.getElementById('applyLayoutBtn'),
     rowInput: document.getElementById('rowInput'),
@@ -735,6 +738,15 @@
     return `${y}${m}${d}_${hh}${mm}`;
   }
 
+  function setGuestPanelCollapsed(collapsed) {
+    if (!els.workspace) return;
+    els.workspace.classList.toggle('guest-collapsed', collapsed);
+    if (els.toggleGuestPanelBtn) {
+      els.toggleGuestPanelBtn.textContent = collapsed ? '展開' : '縮小';
+      els.toggleGuestPanelBtn.setAttribute('aria-expanded', String(!collapsed));
+    }
+  }
+
   function setupDropZone() {
     els.guestDropZone.addEventListener('dragover', event => {
       event.preventDefault();
@@ -754,6 +766,8 @@
     els.applyLayoutBtn.addEventListener('click', applyLayout);
     els.clearSeatsBtn.addEventListener('click', clearSeats);
     els.clearGuestsBtn.addEventListener('click', clearGuests);
+    els.toggleGuestPanelBtn?.addEventListener('click', () => setGuestPanelCollapsed(true));
+    els.expandGuestPanelBtn?.addEventListener('click', () => setGuestPanelCollapsed(false));
     els.guestSearch.addEventListener('input', renderGuestList);
     els.guestForm.addEventListener('submit', saveGuestEdit);
     els.cancelEditBtn.addEventListener('click', closeGuestDialog);

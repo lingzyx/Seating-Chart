@@ -662,3 +662,154 @@ h1 {
     width: 104px;
   }
 }
+
+/* 2026-07 compact workspace update: shrink guest list and fit 8-column plans more comfortably. */
+.workspace {
+  grid-template-columns: minmax(210px, 240px) minmax(0, 1fr);
+  gap: 12px;
+}
+
+.guest-panel {
+  padding: 12px;
+}
+
+.panel-actions {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.sidebar-toggle {
+  white-space: nowrap;
+}
+
+.collapsed-rail {
+  display: none;
+}
+
+.seat-panel {
+  padding: 12px;
+}
+
+.control-card {
+  padding: 12px;
+}
+
+.control-grid {
+  grid-template-columns: repeat(2, minmax(74px, 96px)) minmax(150px, 1fr) minmax(150px, 1fr) auto;
+  gap: 10px;
+}
+
+.stage-card {
+  margin: 12px auto 10px;
+  padding: 11px;
+}
+
+.legend-row {
+  margin-bottom: 8px;
+}
+
+.seat-scroll {
+  padding: 8px;
+  max-height: calc(100vh - 270px);
+}
+
+.seat-grid {
+  gap: 6px;
+}
+
+.seat-cell {
+  width: clamp(78px, 6.2vw, 104px);
+  min-height: 66px;
+  padding: 16px 6px 7px;
+  border-radius: 12px;
+}
+
+.seat-number {
+  top: 5px;
+  left: 7px;
+  font-size: 10px;
+}
+
+.seat-content {
+  min-height: 38px;
+}
+
+.seat-content .seat-org,
+.seat-content .seat-person {
+  font-size: 11px;
+  line-height: 1.22;
+}
+
+.seat-action-button {
+  width: 22px;
+  height: 22px;
+  font-size: 11px;
+}
+
+.aisle-cell.horizontal {
+  min-height: 24px;
+}
+
+.workspace.guest-collapsed {
+  grid-template-columns: 52px minmax(0, 1fr);
+}
+
+.workspace.guest-collapsed .guest-panel {
+  min-height: 260px;
+  padding: 8px;
+  align-items: stretch;
+}
+
+.workspace.guest-collapsed .guest-panel > :not(.collapsed-rail) {
+  display: none;
+}
+
+.workspace.guest-collapsed .collapsed-rail {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  min-height: 220px;
+  align-items: center;
+  justify-content: center;
+  border: 1px dashed var(--line-strong);
+  border-radius: 18px;
+  background: var(--primary-soft);
+  color: var(--primary-dark);
+  font-weight: 850;
+  letter-spacing: 0.08em;
+  writing-mode: vertical-rl;
+}
+
+@media (max-width: 1080px) {
+  .topbar,
+  .workspace,
+  .workspace.guest-collapsed {
+    grid-template-columns: 1fr;
+  }
+
+  .workspace.guest-collapsed .guest-panel > :not(.collapsed-rail) {
+    display: flex;
+  }
+
+  .workspace.guest-collapsed .guest-panel .search-box,
+  .workspace.guest-collapsed .guest-panel .drop-zone,
+  .workspace.guest-collapsed .guest-panel .guest-list {
+    display: block;
+  }
+
+  .workspace.guest-collapsed .collapsed-rail {
+    display: none;
+  }
+
+  .seat-cell {
+    width: 88px;
+  }
+}
+
+@media (max-width: 620px) {
+  .seat-cell {
+    width: 82px;
+  }
+}
