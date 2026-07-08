@@ -285,6 +285,27 @@ h1 {
   box-shadow: 0 4px 12px rgba(33, 62, 54, 0.05);
 }
 
+.guest-card.has-org-color {
+  border-color: var(--guest-group-border, var(--line));
+  background: linear-gradient(90deg, var(--guest-group-bg, #fff), #fff 88%);
+}
+
+.guest-card.has-org-color::before {
+  content: "";
+  position: absolute;
+  inset: 10px auto 10px 7px;
+  width: 4px;
+  border-radius: 999px;
+  background: var(--guest-group-accent, var(--primary));
+  opacity: 0.72;
+}
+
+.guest-card.has-org-color .guest-org,
+.guest-card.has-org-color .guest-person,
+.guest-card.has-org-color .guest-note {
+  padding-left: 6px;
+}
+
 .guest-card:active {
   cursor: grabbing;
 }

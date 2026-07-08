@@ -65,6 +65,22 @@
 
   const COMMON_SURNAMES = new Set('王李張劉陳楊黃趙吳周徐孫馬朱胡郭何高林羅鄭梁謝宋唐許韓馮鄧曹彭曾蕭田董潘袁蔡蔣余于杜葉程魏蘇呂丁任沈姚盧姜崔鍾譚陸汪范金石廖賴侯邱方江白康游詹施洪簡藍顏莊詹溫傅呂柯盧阮魏歐陽上官司徒'.split(''));
 
+
+  const ORG_COLOR_PALETTE = [
+    { bg: '#f0f8f5', border: '#b9dfd2', accent: '#6fb7a3' },
+    { bg: '#f5f8ee', border: '#d2e1ad', accent: '#9fbd67' },
+    { bg: '#fff7ed', border: '#efd4aa', accent: '#d7a45f' },
+    { bg: '#f1f7fb', border: '#b9d7e7', accent: '#6aa7c7' },
+    { bg: '#f8f3fb', border: '#d9c4e8', accent: '#ad81c6' },
+    { bg: '#fff3f5', border: '#edc2cb', accent: '#d88698' },
+    { bg: '#f2f7ff', border: '#c4d7f1', accent: '#7fa8dc' },
+    { bg: '#f7f5ef', border: '#ded3b7', accent: '#b9a16a' },
+    { bg: '#eef8f8', border: '#acdcdc', accent: '#63b4b4' },
+    { bg: '#f9f2ef', border: '#e2c7b9', accent: '#c48b73' },
+    { bg: '#f3f7f0', border: '#c6dcbd', accent: '#83b071' },
+    { bg: '#f4f4fb', border: '#c9c9ec', accent: '#8f8bd1' },
+  ];
+
   function seatKey(row, col) {
     return `${row}-${col}`;
   }
@@ -93,6 +109,34 @@
 
   function normalizeHeader(header) {
     return cleanText(header).replace(/[\s_\-／/]/g, '').toLowerCase();
+  }
+
+
+  function normalizeOrgForColor(org) {
+    return cleanText(org).replace(/[\s　]/g, '').replace(/[()]/g, match => (match === '(' ? '（' : '）'));
+  }
+
+  function hashString(value) {
+    let hash = 0;
+    for (let index = 0; index < value.length; index += 1) {
+      hash = ((hash << 5) - hash) + value.charCodeAt(index);
+      hash |= 0;
+    }
+    return Math.abs(hash);
+  }
+
+  function orgColorStyle(org) {
+    const normalizedOrg = normalizeOrgForColor(org);
+    if (!normalizedOrg) return null;
+    return ORG_COLOR_PALETTE[hashString(normalizedOrg) % ORG_COLOR_PALETTE.length];
+  }
+
+  function applyOrgColorStyle(element, org) {
+    const color = orgColorStyle(org);
+    if (!color) return;
+    element.style.setProperty('--guest-group-bg', color.bg);
+    element.style.setProperty('--guest-group-border', color.border);
+    element.style.setProperty('--guest-group-accent', color.accent);
   }
 
   function detectHeaderIndexes(row) {
@@ -361,7 +405,8 @@
 
   function createGuestCard(guest, source, fromKey = '') {
     const card = document.createElement('article');
-    card.className = 'guest-card';
+    card.className = `guest-card${guest.org ? ' has-org-color' : ''}`;
+    applyOrgColorStyle(card, guest.org);
     card.draggable = true;
     card.dataset.guestId = guest.id;
     card.innerHTML = `
