@@ -563,52 +563,71 @@
     const workbook = new ExcelJS.Workbook();
     workbook.creator = '禮堂座位安排工具';
     workbook.created = new Date();
-    const worksheet = workbook.addWorksheet('座位表', {
+
+    createSeatWorksheet(workbook, '台下視角', false);
+    createSeatWorksheet(workbook, '台上視角', true);
+
+    const buffer = await workbook.xlsx.writeBuffer();
+    const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+    downloadBlob(blob, `禮堂座位表_雙視角_${formatDate(new Date())}.xlsx`);
+    showToast('已產出含台下與台上視角的 Excel 座位表');
+  }
+
+  function createSeatWorksheet(workbook, sheetName, rotateForStageView) {
+    const worksheet = workbook.addWorksheet(sheetName, {
       properties: { defaultRowHeight: 54 },
       pageSetup: { orientation: 'landscape', fitToPage: true, fitToWidth: 1, fitToHeight: 0 },
     });
 
-    const visualCols = buildVisualColumns();
-    visualCols.forEach((item, index) => {
-      const column = worksheet.getColumn(index + 1);
-      column.width = item.type === 'aisle' ? 4 : 18;
+    const visualRows = buildVisualSeatLayout(rotateForStageView);
+    const visualColCount = visualRows[0]?.length || 0;
+
+    for (let colIndex = 0; colIndex < visualColCount; colIndex += 1) {
+      const hasSeat = visualRows.some(row => row[colIndex]?.type === 'seat');
+      worksheet.getColumn(colIndex + 1).width = hasSeat ? 18 : 4;
+    }
+
+    visualRows.forEach((layoutRow, rowIndex) => {
+      const excelRow = rowIndex + 1;
+      const rowHasSeat = layoutRow.some(item => item.type === 'seat');
+      worksheet.getRow(excelRow).height = rowHasSeat ? 54 : 18;
+
+      layoutRow.forEach((item, colIndex) => {
+        const excelCol = colIndex + 1;
+        if (item.type === 'seat') {
+          writeSeatCell(worksheet, excelRow, excelCol, item.row, item.col);
+        } else {
+          worksheet.getCell(excelRow, excelCol).value = '';
+        }
+      });
     });
 
-    let excelRow = 1;
-    for (let row = 1; row <= state.rows; row += 1) {
-      let excelCol = 1;
-      for (let col = 1; col <= state.cols; col += 1) {
-        writeSeatCell(worksheet, excelRow, excelCol, row, col);
-        excelCol += 1;
-        if (state.verticalAisles.includes(col)) {
-          worksheet.getCell(excelRow, excelCol).value = '';
-          excelCol += 1;
-        }
-      }
-      worksheet.getRow(excelRow).height = 54;
-      excelRow += 1;
-
-      if (state.horizontalAisles.includes(row)) {
-        worksheet.getRow(excelRow).height = 18;
-        excelRow += 1;
-      }
-    }
-
     worksheet.views = [{ state: 'frozen', xSplit: 0, ySplit: 0 }];
-
-    const buffer = await workbook.xlsx.writeBuffer();
-    const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-    downloadBlob(blob, `禮堂座位表_${formatDate(new Date())}.xlsx`);
-    showToast('已產出 Excel 座位表');
+    return worksheet;
   }
 
-  function buildVisualColumns() {
-    const columns = [];
-    for (let col = 1; col <= state.cols; col += 1) {
-      columns.push({ type: 'seat', col });
-      if (state.verticalAisles.includes(col)) columns.push({ type: 'aisle' });
+  function buildVisualSeatLayout(rotateForStageView = false) {
+    const rows = [];
+    const visualColCount = state.cols + state.verticalAisles.length;
+
+    for (let row = 1; row <= state.rows; row += 1) {
+      const layoutRow = [];
+      for (let col = 1; col <= state.cols; col += 1) {
+        layoutRow.push({ type: 'seat', row, col });
+        if (state.verticalAisles.includes(col)) layoutRow.push({ type: 'aisle' });
+      }
+      rows.push(layoutRow);
+
+      if (state.horizontalAisles.includes(row)) {
+        rows.push(Array.from({ length: visualColCount }, () => ({ type: 'aisle' })));
+      }
     }
-    return columns;
+
+    if (!rotateForStageView) return rows;
+    return rows
+      .slice()
+      .reverse()
+      .map(layoutRow => layoutRow.slice().reverse());
   }
 
   function writeSeatCell(worksheet, excelRow, excelCol, seatRow, seatCol) {
