@@ -11,6 +11,9 @@
     horizontalAisles: [],
   };
 
+  const STORAGE_KEY = 'auditoriumSeatingChart:v1';
+  let persistTimer = null;
+
   const els = {
     fileInput: document.getElementById('fileInput'),
     exportBtn: document.getElementById('exportBtn'),
@@ -81,6 +84,68 @@
 
   function seatKey(row, col) {
     return `${row}-${col}`;
+  }
+
+  function serializeState() {
+    return {
+      version: 1,
+      savedAt: Date.now(),
+      guests: state.guests,
+      seats: [...state.seats.entries()],
+      rows: state.rows,
+      cols: state.cols,
+      verticalAisles: state.verticalAisles,
+      horizontalAisles: state.horizontalAisles,
+    };
+  }
+
+  function persistStateNow() {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(serializeState()));
+    } catch (error) {
+      // 常見於無痕模式或儲存空間已滿，靜默失敗即可，不影響操作本身。
+      console.warn('自動存檔失敗：', error);
+    }
+  }
+
+  function scheduleSave() {
+    window.clearTimeout(persistTimer);
+    persistTimer = window.setTimeout(persistStateNow, 300);
+  }
+
+  function restoreState() {
+    let raw;
+    try {
+      raw = localStorage.getItem(STORAGE_KEY);
+    } catch (error) {
+      console.warn('讀取本機存檔失敗：', error);
+      return false;
+    }
+    if (!raw) return false;
+
+    try {
+      const data = JSON.parse(raw);
+      if (!data || !Array.isArray(data.guests)) return false;
+
+      state.guests = data.guests;
+      state.seats = new Map(Array.isArray(data.seats) ? data.seats : []);
+      state.rows = clampNumber(data.rows, 1, 80, state.rows);
+      state.cols = clampNumber(data.cols, 1, 80, state.cols);
+      state.verticalAisles = Array.isArray(data.verticalAisles) ? data.verticalAisles : [];
+      state.horizontalAisles = Array.isArray(data.horizontalAisles) ? data.horizontalAisles : [];
+      return true;
+    } catch (error) {
+      console.warn('解析本機存檔失敗，將忽略舊存檔：', error);
+      return false;
+    }
+  }
+
+  function clearPersistedState() {
+    try {
+      localStorage.removeItem(STORAGE_KEY);
+    } catch (error) {
+      console.warn('清除本機存檔失敗：', error);
+    }
   }
 
   function clampNumber(value, min, max, fallback) {
@@ -318,6 +383,11 @@
   async function handleFileUpload(event) {
     const file = event.target.files?.[0];
     if (!file) return;
+
+    if (state.guests.length && !window.confirm('上傳新名單將取代目前的賓客名單與座位安排，確定要繼續嗎？')) {
+      event.target.value = '';
+      return;
+    }
 
     try {
       const buffer = await file.arrayBuffer();
@@ -675,6 +745,7 @@
     if (!window.confirm('確定要清空賓客名單與所有座位安排嗎？')) return;
     state.guests = [];
     state.seats.clear();
+    clearPersistedState();
     renderAll();
     showToast('已清空名單與座位');
   }
@@ -712,6 +783,7 @@
   function renderAll() {
     renderGuestList();
     renderSeatGrid();
+    scheduleSave();
   }
 
   function escapeHtml(value) {
@@ -906,5 +978,18 @@
   }
 
   bindEvents();
+
+  const hasRestoredData = restoreState();
+  if (hasRestoredData) {
+    els.rowInput.value = String(state.rows);
+    els.colInput.value = String(state.cols);
+  }
+
   renderAll();
+
+  if (hasRestoredData && (state.guests.length || state.seats.size)) {
+    showToast('已還原上次自動儲存的排位進度');
+  }
+
+  window.addEventListener('beforeunload', persistStateNow);
 })();
