@@ -611,7 +611,7 @@
     cell.innerHTML = `
       <div class="seat-number">${row}-${col}</div>
       <div class="seat-content">
-        ${guest ? `<div class="seat-org" title="${escapeHtml(guest.org || '未辨識機關單位')}">${escapeHtml(guest.org || '未辨識機關單位')}</div><div class="seat-person" title="${escapeHtml(guest.personLine || guest.raw || '')}">${escapeHtml(guest.personLine || guest.raw || '')}</div>` : '<span class="seat-empty">拖拉至此</span>'}
+        ${guest ? `<div class="seat-org" title="${escapeHtml(guest.org || '未辨識機關單位')}">${escapeHtml(guest.org || '未辨識機關單位')}</div><div class="seat-person" title="${escapeHtml(guest.personLine || guest.raw || '')}">${escapeHtml(guest.personLine || guest.raw || '')}</div>` : '<span class="seat-empty" aria-hidden="true">＋</span><span class="visually-hidden">空位，可拖曳賓客至此</span>'}
       </div>
       ${guest ? `<div class="seat-actions"><button class="seat-action-button" type="button" data-action="clear" title="清除座位">×</button></div>` : ''}
     `;
