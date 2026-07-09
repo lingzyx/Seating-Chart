@@ -561,19 +561,6 @@ h1 {
   border-color: var(--assigned-border);
 }
 
-/* 印章 — hanko stamp mark confirming an assigned seat */
-.seat-cell.assigned::after {
-  content: "";
-  position: absolute;
-  right: 6px;
-  bottom: 6px;
-  width: 8px;
-  height: 8px;
-  background: var(--shu);
-  opacity: 0.82;
-  transform: rotate(-6deg);
-}
-
 .seat-cell.drag-over {
   border-color: var(--primary);
   background: var(--primary-soft);
