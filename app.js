@@ -562,8 +562,9 @@
     const aisle = document.createElement('button');
     aisle.type = 'button';
     aisle.className = `aisle-cell ${type} removable`;
-    aisle.textContent = '走道';
+    if (type === 'horizontal') aisle.textContent = '走道';
     aisle.title = type === 'vertical' ? '點擊移除這條垂直走道' : '點擊移除這條水平走道';
+    aisle.setAttribute('aria-label', type === 'vertical' ? '垂直走道，點擊移除' : '水平走道，點擊移除');
     if (type === 'horizontal') aisle.style.gridColumn = `1 / span ${visualColumnCount()}`;
     aisle.addEventListener('click', event => {
       event.stopPropagation();
