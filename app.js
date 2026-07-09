@@ -31,14 +31,6 @@
     unassignedCount: document.getElementById('unassignedCount'),
     totalCount: document.getElementById('totalCount'),
     seatGrid: document.getElementById('seatGrid'),
-    guestDialog: document.getElementById('guestDialog'),
-    guestForm: document.getElementById('guestForm'),
-    editingGuestId: document.getElementById('editingGuestId'),
-    editOrg: document.getElementById('editOrg'),
-    editPerson: document.getElementById('editPerson'),
-    editNote: document.getElementById('editNote'),
-    cancelEditBtn: document.getElementById('cancelEditBtn'),
-    closeDialogBtn: document.getElementById('closeDialogBtn'),
     toast: document.getElementById('toast'),
   };
 
@@ -480,9 +472,6 @@
     card.innerHTML = `
       <div class="guest-org">${escapeHtml(guest.org || '未辨識機關單位')}</div>
       <div class="guest-person">${escapeHtml(guest.personLine || guest.raw || '未命名賓客')}</div>
-      <div class="card-actions">
-        <button class="tiny-button" type="button" data-action="edit">編輯</button>
-      </div>
       ${guest.note ? `<div class="guest-note">${escapeHtml(guest.note)}</div>` : ''}
     `;
 
@@ -492,10 +481,6 @@
       event.dataTransfer.setData('text/plain', JSON.stringify({ source, guestId: guest.id, fromKey }));
     });
     card.addEventListener('dragend', () => card.classList.remove('dragging'));
-    card.querySelector('[data-action="edit"]').addEventListener('click', event => {
-      event.stopPropagation();
-      openGuestDialog(guest.id);
-    });
     return card;
   }
 
@@ -626,9 +611,9 @@
     cell.innerHTML = `
       <div class="seat-number">${row}-${col}</div>
       <div class="seat-content">
-        ${guest ? `<div class="seat-org">${escapeHtml(guest.org || '未辨識機關單位')}</div><div class="seat-person">${escapeHtml(guest.personLine || guest.raw || '')}</div>` : '<span class="seat-empty">拖拉至此</span>'}
+        ${guest ? `<div class="seat-org" title="${escapeHtml(guest.org || '未辨識機關單位')}">${escapeHtml(guest.org || '未辨識機關單位')}</div><div class="seat-person" title="${escapeHtml(guest.personLine || guest.raw || '')}">${escapeHtml(guest.personLine || guest.raw || '')}</div>` : '<span class="seat-empty">拖拉至此</span>'}
       </div>
-      ${guest ? `<div class="seat-actions"><button class="seat-action-button" type="button" data-action="edit" title="編輯">✎</button><button class="seat-action-button" type="button" data-action="clear" title="清除座位">×</button></div>` : ''}
+      ${guest ? `<div class="seat-actions"><button class="seat-action-button" type="button" data-action="clear" title="清除座位">×</button></div>` : ''}
     `;
 
     cell.addEventListener('dragover', event => {
@@ -653,10 +638,6 @@
         state.seats.delete(key);
         renderAll();
         showToast('已清除座位，賓客回到未安排名單');
-      });
-      cell.querySelector('[data-action="edit"]').addEventListener('click', event => {
-        event.stopPropagation();
-        openGuestDialog(guest.id);
       });
     }
 
@@ -748,36 +729,6 @@
     clearPersistedState();
     renderAll();
     showToast('已清空名單與座位');
-  }
-
-  function openGuestDialog(guestId) {
-    const guest = guestById(guestId);
-    if (!guest) return;
-    els.editingGuestId.value = guest.id;
-    els.editOrg.value = guest.org;
-    els.editPerson.value = guest.personLine;
-    els.editNote.value = guest.note;
-    els.guestDialog.showModal();
-    els.editOrg.focus();
-  }
-
-  function closeGuestDialog() {
-    els.guestDialog.close();
-  }
-
-  function saveGuestEdit(event) {
-    event.preventDefault();
-    const guest = guestById(els.editingGuestId.value);
-    if (!guest) return;
-
-    guest.org = cleanText(els.editOrg.value);
-    guest.personLine = cleanText(els.editPerson.value);
-    guest.note = cleanText(els.editNote.value);
-    guest.raw = [guest.org, guest.personLine, guest.note].filter(Boolean).join(' ');
-
-    closeGuestDialog();
-    renderAll();
-    showToast('已更新賓客資料');
   }
 
   function renderAll() {
@@ -971,9 +922,6 @@
     els.toggleGuestPanelBtn?.addEventListener('click', () => setGuestPanelCollapsed(true));
     els.expandGuestPanelBtn?.addEventListener('click', () => setGuestPanelCollapsed(false));
     els.guestSearch.addEventListener('input', renderGuestList);
-    els.guestForm.addEventListener('submit', saveGuestEdit);
-    els.cancelEditBtn.addEventListener('click', closeGuestDialog);
-    els.closeDialogBtn.addEventListener('click', closeGuestDialog);
     setupDropZone();
   }
 

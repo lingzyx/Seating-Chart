@@ -89,32 +89,6 @@
     </main>
   </div>
 
-  <dialog id="guestDialog" class="guest-dialog">
-    <form method="dialog" id="guestForm">
-      <div class="dialog-header">
-        <h3>修改賓客資料</h3>
-        <button class="icon-button" type="button" id="closeDialogBtn" aria-label="關閉">×</button>
-      </div>
-      <input type="hidden" id="editingGuestId" />
-      <label>
-        <span>機關單位</span>
-        <input id="editOrg" type="text" placeholder="例：南投縣政府" />
-      </label>
-      <label>
-        <span>姓名 / 職稱資訊</span>
-        <input id="editPerson" type="text" placeholder="例：林縣長小明" />
-      </label>
-      <label>
-        <span>備註</span>
-        <textarea id="editNote" rows="3" placeholder="可留空"></textarea>
-      </label>
-      <div class="dialog-actions">
-        <button class="button ghost" type="button" id="cancelEditBtn">取消</button>
-        <button class="button primary" type="submit">儲存</button>
-      </div>
-    </form>
-  </dialog>
-
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
