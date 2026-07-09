@@ -60,18 +60,16 @@
 
 
   const ORG_COLOR_PALETTE = [
-    { bg: '#f0f8f5', border: '#b9dfd2', accent: '#6fb7a3' },
-    { bg: '#f5f8ee', border: '#d2e1ad', accent: '#9fbd67' },
-    { bg: '#fff7ed', border: '#efd4aa', accent: '#d7a45f' },
-    { bg: '#f1f7fb', border: '#b9d7e7', accent: '#6aa7c7' },
-    { bg: '#f8f3fb', border: '#d9c4e8', accent: '#ad81c6' },
-    { bg: '#fff3f5', border: '#edc2cb', accent: '#d88698' },
-    { bg: '#f2f7ff', border: '#c4d7f1', accent: '#7fa8dc' },
-    { bg: '#f7f5ef', border: '#ded3b7', accent: '#b9a16a' },
-    { bg: '#eef8f8', border: '#acdcdc', accent: '#63b4b4' },
-    { bg: '#f9f2ef', border: '#e2c7b9', accent: '#c48b73' },
-    { bg: '#f3f7f0', border: '#c6dcbd', accent: '#83b071' },
-    { bg: '#f4f4fb', border: '#c9c9ec', accent: '#8f8bd1' },
+    { bg: '#eef2f1', border: '#c3d2ce', accent: '#5f8a82' }, // 藍鼠
+    { bg: '#f7f2e6', border: '#ddc98f', accent: '#b8944a' }, // 芥子
+    { bg: '#f0f4ea', border: '#c7d9ae', accent: '#7fa35c' }, // 若竹
+    { bg: '#f7eeec', border: '#e2c3bd', accent: '#bd7d70' }, // 鴇
+    { bg: '#f2eef5', border: '#d3c3dd', accent: '#8f739e' }, // 藤
+    { bg: '#f8efe8', border: '#e1c1a8', accent: '#b97b49' }, // 錆
+    { bg: '#eef2f6', border: '#c1d2df', accent: '#6690a8' }, // 空色
+    { bg: '#eef2ea', border: '#c6d2b8', accent: '#7c8f5e' }, // 苔
+    { bg: '#eff0f6', border: '#c7cbe3', accent: '#6f76ab' }, // 桔梗
+    { bg: '#f7efec', border: '#ddbdb0', accent: '#b57160' }, // 煉瓦
   ];
 
   function seatKey(row, col) {
